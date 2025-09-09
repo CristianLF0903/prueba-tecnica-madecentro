@@ -54,6 +54,5 @@ test('GET /cart/:id debe devolver el item agregado', async (t) => {
 	const response = await request(app).get(`/cart/${id}`)
 
 	assert.equal(response.status, 200)
-	assert.ok(Array.isArray(response.body))
-	assert.ok(response.body.find((item) => item.line_item_id === id))
+	assert.equal(response.body.line_item_id, id)
 })
