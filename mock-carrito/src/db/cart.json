@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "line_item_id": "bb3be97f-a336-4820-b95a-aa946eb464a8",
+    "sku": "CANTO-ROBLE-100",
+    "quantity": 2,
+    "properties": {
+      "desired_meters": 250,
+      "city": "Bogotá",
+      "color": "roble"
+    }
+  },
+  {
+    "line_item_id": "c78779d2-a762-4ba6-8180-7f49c64b5dac",
+    "sku": "CANTO-ROBLE-100",
+    "quantity": 1,
+    "properties": {
+      "desired_meters": 100,
+      "city": "Bogotá",
+      "color": "roble"
+    }
+  }
+]

@@ -39,7 +39,13 @@ export async function getCartItem(req, res) {
 			res.status(400).json({ error: 'El id es requerido' })
 		}
 
-		const itemCart = cart.filter((item) => item.id === id)
+		const itemCart = cart.find((item) => item.line_item_id === id)
+
+		if (!itemCart) {
+			res.status(400).json({
+				error: `No se encontró el objecto con el id: ${id} en el carrito`,
+			})
+		}
 
 		res.json(itemCart)
 	} catch (_) {
