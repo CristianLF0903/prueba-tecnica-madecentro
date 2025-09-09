@@ -1,9 +1,9 @@
 import express from 'express'
 import cors from 'cors'
 import morgan from 'morgan'
+import middleware from './utils/middleware.js'
 
 import inventoryRouter from './routes/inventoryRoutes.js'
-import middleware from './utils/middleware.js'
 import productRouter from './routes/productRoutes.js'
 import cartRoutes from './routes/cartRoutes.js'
 

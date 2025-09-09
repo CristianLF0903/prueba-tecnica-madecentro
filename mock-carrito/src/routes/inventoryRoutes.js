@@ -2,7 +2,7 @@ import { Router } from 'express'
 import {
 	getInventory,
 	getInventoryByCity,
-} from '../controllers/inventoryController'
+} from '../controllers/inventoryController.js'
 
 const inventoryRouter = Router()
 
