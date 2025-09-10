@@ -1,0 +1,85 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "recommendations",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "bee28d9c-f905-4764-96dd-de8c14b4b4d9",
+      "name": "Webhook",
+      "webhookId": "12d5d0ad-b213-46c4-ac30-b964a1763635"
+    },
+    {
+      "parameters": {
+        "jsCode": "// productos de ejemplo\nconst products = [\n  { sku: \"CANTO-ROBLE-100\", tags: [\"roble\", \"bogotá\", \"100m\"] },\n  { sku: \"CANTO-PINO-200\", tags: [\"pino\", \"bogotá\", \"200m\"] },\n  { sku: \"CANTO-NOGAL-300\", tags: [\"nogal\", \"cali\", \"300m\"] },\n  { sku: \"CANTO-ROBLE-400\", tags: [\"roble\", \"medellín\", \"400m\"] },\n]\n\n// --------------------\n// Función de validación\n// --------------------\nfunction validateInput(payload) {\n  if (typeof payload !== \"object\" || payload === null) {\n    throw new Error(\"El payload debe ser un objeto\")\n  }\n\n  const { sku, quantity, properties } = payload\n\n  if (!sku || typeof sku !== \"string\") {\n    throw new Error(\"El campo 'sku' es obligatorio y debe ser string\")\n  }\n\n  if (!quantity || typeof quantity !== \"number\" || quantity <= 0) {\n    throw new Error(\"El campo 'quantity' es obligatorio y debe ser número > 0\")\n  }\n\n  if (!properties || typeof properties !== \"object\") {\n    throw new Error(\"El campo 'properties' es obligatorio y debe ser objeto\")\n  }\n\n  const { desired_meters, city, color } = properties\n\n  if (!desired_meters || typeof desired_meters !== \"number\" || desired_meters <= 0) {\n    throw new Error(\"'desired_meters' es obligatorio y debe ser número > 0\")\n  }\n\n  if (!city || typeof city !== \"string\") {\n    throw new Error(\"'city' es obligatorio y debe ser string\")\n  }\n\n  if (!color || typeof color !== \"string\") {\n    throw new Error(\"'color' es obligatorio y debe ser string\")\n  }\n\n  return { sku, quantity, properties }\n}\n\n// --------------------\n// Lógica principal\n// --------------------\ntry {\n  const payload = $input.first().json.body\n  const { sku: currentSku, properties } = validateInput(payload)\n\n  // creamos un conjunto de tags dinámicos\n  const currentTags = [\n    properties.color.toLowerCase(),\n    properties.city.toLowerCase(),\n    String(properties.desired_meters)\n  ]\n\n  const denominator = currentTags.length || 1\n\n  const recommendations = products\n    .filter(p => p.sku !== currentSku)\n    .map(p => {\n      const common = p.tags.filter(t => currentTags.includes(t.toLowerCase()))\n      const score = common.length / denominator\n      return {\n        sku: p.sku,\n        tags: p.tags,\n        score: Number(score.toFixed(2))\n      }\n    })\n    .sort((a, b) => b.score - a.score)\n    .slice(0, 3)\n\n  return [\n    {\n      json: {\n        status: \"success\",\n        recommended: recommendations,\n        message: null\n      }\n    }\n  ]\n} catch (error) {\n  let message = \"Unknown error\";\n\n  if (error instanceof Error) {\n    message = error.message;\n  } else if (typeof error === \"string\") {\n    message = error;\n  } else {\n    try {\n      message = JSON.stringify(error);\n    } catch {\n      message = String(error);\n    }\n  }\n\n  return [\n    {\n      json: {\n        status: \"error\",\n         recommended: [],\n        message,\n      },\n    },\n  ];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "1eb35d32-01a0-4936-972a-453f4cfa2452",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $if($json.status = \"error\", $json.recommended, $json.message) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "9a6fc884-8274-410c-907c-8d9050642a45",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5c2d8522-f93c-48ba-9450-d8ac87ab9565",
+  "meta": {
+    "instanceId": "c66567a464ee6a88e056383259dbf92c29e48a087cfe5a2edb7130c6612eb0ba"
+  },
+  "id": "1i7pm3KlGW1ZbPlE",
+  "tags": []
+}

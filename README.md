@@ -1,4 +1,4 @@
-# Proyecto Carrito Mock (Frontend + Backend)
+# 🛒 Proyecto Carrito Mock (Frontend + Backend)
 
 Este proyecto consiste en un **frontend en React con Bootstrap** y un **backend mock en Node.js con Express**, que simulan un flujo de compra de productos con un carrito y recomendaciones inteligentes.
 
@@ -148,3 +148,148 @@ Se utiliza **npm** 📦 para la gestión de dependencias, asegurando versiones e
 ### ✅ Estado
 
 Estas decisiones pueden revisarse y adaptarse según evolucionen los requerimientos del proyecto.
+
+---
+
+# 🚀 Documentación — Workflow n8n recommendations
+
+Este documento explica cómo importar y probar el workflow de recomendaciones creado en n8n.
+
+El workflow recibe un payload y devuelve un listado de productos recomendados utilizando una heurística simple de similitud de etiquetas.
+
+## 📥 Importar Workflow
+
+1. Abre tu instancia de n8n.
+
+2. Dirígete a **Workflows → Import from File**.
+
+3. Selecciona el archivo `recommendations-workflow.json` (adjunto en este repositorio).
+
+4. Guarda el workflow con el nombre: **Recommendations API**.
+
+## ⚙️ Estructura del Workflow
+
+El flujo contiene 3 nodos principales:
+
+1. Webhook (POST)
+
+   - URL: /recommendations
+
+   - Método: POST
+
+   - Recibe payload JSON con el formato:
+
+```json
+{
+	"sku": "CANTO-ROBLE-100",
+	"quantity": 2,
+	"properties": {
+		"desired_meters": 250,
+		"city": "Bogotá",
+		"color": "roble"
+	}
+}
+```
+
+2. Function (calcRecommendations)
+
+   - Aplica la fórmula de similitud:
+
+```ini
+score = (número de etiquetas en común) / (número total de etiquetas del producto consultado)
+```
+
+- Ordena los productos por score y devuelve los 2–3 más relevantes.
+
+3. Respond to Webhook
+
+   - Devuelve un objeto JSON con el resultado.
+
+   - Ejemplo:
+
+```json
+{
+	"recommended": [
+		{
+			"sku": "CANTO-NOGAL-100",
+			"tags": ["nogal", "canto", "100m"],
+			"score": 0.67
+		},
+		{ "sku": "PEGANTE-MADERA", "tags": ["adhesivo", "madera"], "score": 0.0 }
+	]
+}
+```
+
+## ▶️ Probar el Workflow
+
+1. Activar el Workflow
+
+   - Haz clic en Activate dentro de n8n.
+
+   - Copia la Webhook URL generada (ejemplo: `https://username.app.n8n.cloud/webhook-test/recommendations`)
+
+2. Configurar la request en Postman
+
+   - **Abre Postman** y crea una nueva petición.
+
+   - **Método:** `POST`
+
+   - **URL:** `https://username.app.n8n.cloud/webhook-test/recommendations`
+
+   - En la pestaña **Body**, selecciona `raw` y el formato `JSON`, luego pega el siguiente payload:
+
+```json
+{
+	"sku": "CANTO-ROBLE-100",
+	"quantity": 2,
+	"properties": {
+		"desired_meters": 250,
+		"city": "Bogotá",
+		"color": "roble"
+	}
+}
+```
+
+3. Ejecutar y revisar la respuesta
+   - Haz clic en **Send**.
+   - La respuesta esperada será similar a:
+
+```json
+{
+	"recommended": [
+		{
+			"sku": "CANTO-NOGAL-100",
+			"tags": ["nogal", "canto", "100m"],
+			"score": 0.67
+		},
+		{
+			"sku": "PEGANTE-MADERA",
+			"tags": ["adhesivo", "madera"],
+			"score": 0.0
+		},
+		{
+			"sku": "CERA-PROTECTOR",
+			"tags": ["acabado", "protector"],
+			"score": 0.0
+		}
+	]
+}
+```
+
+## 🧪 Validaciones
+
+Si el payload no contiene sku o se produce algún error, la respuesta incluirá un error:
+
+```json
+{ "message": "sku is required" }
+```
+
+El cálculo de similitud es local, no depende de servicios externos.
+
+## 📌 Notas
+
+- El archivo `products.json` de ejemplo está embebido en el workflow.
+
+- Puedes reemplazarlo con un **HTTP Request Node** para obtener productos desde el backend real.
+
+- Ajusta `slice(0,3)` en el Function node si deseas más o menos recomendaciones.
