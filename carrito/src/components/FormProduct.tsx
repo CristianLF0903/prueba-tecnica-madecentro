@@ -3,6 +3,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { Form, Button, Alert } from 'react-bootstrap'
 import { useAppStore } from '../store/useStore'
 import { addCart } from '../services/shoppinCart'
+import type { ProductPayload } from '../types'
 
 type FormValues = {
 	metros: number
@@ -41,7 +42,7 @@ export default function FormProduct() {
 		try {
 			if (!hasStock || !product || !selectedVariant) return
 
-			const payload = {
+			const payload: ProductPayload = {
 				sku: product.sku,
 				quantity: 1,
 				properties: {
