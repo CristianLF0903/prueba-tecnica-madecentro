@@ -1,12 +1,18 @@
 import axios from 'axios'
 import { type Inventory, type Product } from '../types'
 
-const BASE_URL = import.meta.env.VITE_API
+const BASE_URL = import.meta.env.VITE_API || 'http://localhost:3001'
 
 export async function getInventory(): Promise<Product[]> {
 	const response = await axios.get<Inventory[]>(`${BASE_URL}/inventory`)
 
 	return transformInventory(response.data)
+}
+
+export async function getProducts() {
+	const response = await axios.get(`${BASE_URL}/products`)
+
+	return response.data
 }
 
 function transformInventory(
@@ -35,6 +41,7 @@ function transformInventory(
 				product,
 				price_per_meter: pricePerMeter,
 				roll_length: rollLength,
+				sku: item.sku,
 				variants: [],
 			}
 		}
@@ -48,7 +55,6 @@ function transformInventory(
 			existing.available += item.available
 		} else {
 			grouped[product].variants.push({
-				sku: item.sku,
 				color,
 				city: item.city,
 				available: item.available,

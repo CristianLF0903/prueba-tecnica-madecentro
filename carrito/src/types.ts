@@ -8,11 +8,11 @@ export interface Product {
 	product: string
 	price_per_meter: number
 	roll_length: number
+	sku: string
 	variants: Variant[]
 }
 
 interface Variant {
-	sku: string
 	color: string
 	city: string
 	available: number
@@ -26,6 +26,12 @@ export interface ProductPayload {
 		city: string
 		color: string
 	}
+}
+
+export interface Recommendations {
+	sku: string
+	score: number
+	tags: string[]
 }
 
 export interface Message {

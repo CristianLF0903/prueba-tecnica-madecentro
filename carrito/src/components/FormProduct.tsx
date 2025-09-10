@@ -42,7 +42,7 @@ export default function FormProduct() {
 			if (!hasStock || !product || !selectedVariant) return
 
 			const payload = {
-				sku: selectedVariant.sku,
+				sku: product.sku,
 				quantity: 1,
 				properties: {
 					desired_meters: formData.metros,

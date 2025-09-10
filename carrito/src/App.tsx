@@ -5,6 +5,7 @@ import { useAppStore } from './store/useStore'
 import { getInventory } from './services/inventory.ts'
 import ProductView from './components/ProductView.tsx'
 import { Alert } from 'react-bootstrap'
+import Recommendations from './components/Recommendations.tsx'
 
 function App() {
 	const { product, setProduct, showMessage, message } = useAppStore()
@@ -39,6 +40,7 @@ function App() {
 					</Alert>
 				)}
 				{product ? <ProductView /> : <h1>Producto no encontrado</h1>}
+				<Recommendations />
 			</main>
 		</>
 	)
